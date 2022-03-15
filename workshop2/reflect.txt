@@ -1,0 +1,59 @@
+Name - Ashwin Anand
+email - aanand24@myseneca.ca
+student id - 152042206
+Date - 2022/01/28
+
+                                                  				 Reflection
+
+I have revised and learned variety of topics in this workshop. Some of those concepts were new to me because I was including or writing them in my code for the first time.Example include std::chrono library,  move copy constructor and  move assingment operator, allocating dynamic memory to a large array of std::string type, remove and erase function of algorithm library and reading a big-formatted text file. There were other concepts also like the rule of three to handle a resource, operator overloading, just to name a few. In this reflection, I will discover the new concepts and the challenges I faced while implementing those.
+
+Let's first discuss about how I read the formatted file with my code. First of all, workshop specifications states that we have to count the number of rows in the text file so that we can allocate memory for our dynamically allocated string array later on. I learned to do this from professor in lecture in which he mentioned that how we can read a file in which every line contain a common character, which we can catch and then start the counter and increment it as the file gets read. In the given text file, there was greator than sybmol ('>') common  to every line so I used get method of file stream and it reads every character in the file and if that character matches with the '>', I incremented the counter. Here is the code for reference
+			while (inFile)
+			{
+				if (inFile.get() == '>')
+				{
+					nProteinSequences++;
+				}
+			}
+
+After this I allocated dynamic memory of size nProteinSequencses to the array. Now, I had to read and store the protein sequence present in the text file. Protein sequence was a long string of characters divided into many lines and reading this was bit difficult for me at first, however after doing many mistakes I was able to do it. Here, I will explain how I achieved that. Firstly, to read every protein sequences I have to skip the line before the sequence so that the sequence can be properly stored into the array. I used the ignore function for that purpose, and then to store every protein sequences to the file, I used the getline function with the proper delimiter. Code looked like the below one
+
+			while (inFile)
+			{
+				inFile.ignore(1000, '\n'); 
+				getline(inFile, proteinSequences[i], '>');
+				i++;
+			}
+
+
+In this way I was able to store every protein sequence to the array and this logic was okay for the workshop part 1. In part 2, the main file read the size of elements of the array and because the protein sequence was divided into different lines, the elements of protein sequence I stored contains various new line characters. I had to somehow remove those new line chars from every protein sequence. To do this, I used remove and erase function of the algorithm library. Let's first see this in coding
+
+			while (inFile)
+			{
+				inFile.ignore(1000, '\n');
+				getline(inFile, helperString, '>');
+				if (i < nProteinSequences)
+				{
+					auto newLinesRemoved = remove(helperString.begin(), helperString.end(), '\n');
+					helperString.erase(newLinesRemoved, helperString.end());
+					proteinSequences[i] = helperString;
+				}
+				i++;
+			}
+
+In this part as u can see my code changed as compared to before. This is because by implementing this, I was able to remove new line chars from protein sequences. Here, I am using remove function which takes beginning and ending of target string as the first two arguments and third argument it contains is of the character to be removed from the mentioned string. This function, as I learned only removes the target character logically i.e. it does not reduce the actual size of the string. This function first takes all the other characters except the target ones to the left and leaves the target characters to the right. Now, to remove those characters in actual we use erase function which takes the object returned by the remove to its argument as first parameter and takes the end part of the target string as the second one.  By using these two functions, I was able to implement my solution. Now, as a reference, I learned about this from this link: 
+https://en.cppreference.com/w/cpp/algorithm/remove#:~:text=std%3A%3Aremove%2C%20std%3A%3Aremove_if,-From%20cppreference.com&text=Removes%20all%20elements%20satisfying%20specific,which%20predicate%20p%20returns%20true.
+
+Now, secondly I used std::chrono library in my solution. I used it mainly to use objects of type steady_clock::time_point, steady_clock::duration. Including this, I used std::chrono::duration_cast<std::chrono::nanoseconds>() to cast an object of type steady_clock::time_point to steady_clock::duration type. Before going on further topics, let me first discuss the mentioned types. Basically, duration object, as its name suggests, represents a duration of a task or in other words, how much time taken by a task to get completed. Time can be in any units like milliseconds, nanoseconds and others. If we want to print those timings then we may not do so by printing directly the object using cout. However we can do it by using the count function on this object which returns an integral type (long long). I used it in my code and it looked like this:
+
+  ->ostr << timedTask.tasks[i].taskDuration.count(); -> taskDuration is an object of type Duration as mentioned above.
+
+
+  Another type was std::steady_clock::time_point. I used this mainly to store the time at particular point of times in execution so that I can compare those time points and the performance. Now, to get those particular or current times, I utilized now function implemented in steady_clock which returns the current time of process from its execution point. In coding, it was as shown below:
+
+  -> start = chrono::steady_clock::now();
+
+
+Now, lastly I will discuss and compare the performance of move copy constructor, move assignment operator with that of copy constructor and copy assignment operator. Let me start with the differences between their implementation. Firstly, both the move copy constructor and assignment operator respectively takes modifiable R value reference of the given class type to their arguments. This means the value received in arguments can be modified in the implementation and this is what is the case. However, copy constructor and copy assignment operator receive const L value reference to their arguments which means the value received would not be modified in logic. Secondly, move semantics are related to moving resources rather than creating and allocating memory again for the resource which is done in copy constructor and copy assignment operator. Moving resource means that we do not allocate any new memory, just we exchange address of the source received to the current object and set the current resource address of the source to the nullptr. Similarly, we move value of shallow variables. The third difference is related to when special functions related to moving and copying will be called. Move constructor executes when creating a temporary object or the object which do not have any identity gets created and it will also be called when we are assigning an old object to the new object by using std::move() and passing that old object to this function argument.Move assignment operator executes whenever we are moving resources by assigning an existing object to another existing object them by using the same std::move() function. On the other hand copy constructor and copy assignment operator, as we know, gets called while copying objects.
+
+As a last point, if I talk about the performance comparison of the move and copy semantics then performance wise move semantics takes very less time for their execution. I evident this thing in the result of the part2 of the workshop in which move semantics takes less than 2000 nanoseconds for their exeuction, however copy semantics takes above million nanoseconds for their execution in my system. Overall, this workshop involves various new topics and was very interesting to compare the performance of the move and copy semantics.
