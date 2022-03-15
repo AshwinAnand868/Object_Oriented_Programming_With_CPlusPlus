@@ -1,0 +1,149 @@
+//Name - Ashwin Anand
+//email - aanand24@myseneca.ca
+//student id - 152042206
+//date - 2022/02/13
+//I have done all the coding by myself and only copied the code that my professor provided to complete my workshops and assignments.
+
+											Reflection
+
+
+This workshop was focused on the relationships between three classes and was primarily based on the composition and aggregation relations. Along with this, it involves working with some function of string class to manipulate and extract parts of string, move and copy semantics, and also a new topic was related to dynamic array of pointers. Before, diving into questions asked in the reflection about composition and aggregation relations, let me first explain the problem which I faced while implementing and working with string manipulation.
+
+As we know that our main file was reading data from the file which was in the form of string with format like this -> ID:NAME:NUM:PRICE. This data is then passed for the creation of toy object which was then essentially passed to the one argument constructor of the toy class. Now, it was the responsibility for us to find a way to how to extract the parts from the source string and assign those parts to different private members of the Toy class. In the workshop specs, some functions were given and thus I started reading about them. After trying some time, I was able to make a way using substr(), find(), and erase() functions to tokenize a string. However, I faced some problem while extracting name of the toy from the given string. My old solution for removing spaces upto delimiter was like the below one:
+
+	void removeSpecificChars(std::string& target, char toBeRemoved)
+	{
+		auto charRemoved = remove(target.begin(), target.end(),' ');
+		target.erase(charRemoved, target.end());
+	}
+
+	For all other 3 variables this logic worked well. However, when it removes spaces for the name of the toy, it removed all the spaces in the name. For example "  Red Toy    " becomes "RedToy", but it should become "Red Toy". First I was not able to sort this logic like how can I remove all the leading and trailing spaces. Then after searching for a while on the internet, I found two methods which was appropriate for the logic. First was the find_first_not_of() an second was the find_last_not_of() and I used the overloaded method of these function which takes a character as argument. At last, I changed my solution to the below one:
+	void removeSpecificChars(std::string& target, char toBeRemoved)
+	{
+		target.erase(0, target.find_first_not_of(toBeRemoved));
+		target.erase(target.find_last_not_of(toBeRemoved) + 1);
+	}
+
+	Now, it seemed correct for all instance variables of the Toy Class. Code on 14 line removes all the leading spaces from zero index of the string to the first character after delimiter and the code on the 15 line removes all the trailing spaces from the string.
+
+
+	Now, before discussing my other problem which I faced, I would like to address questions asked in the reflection first.
+
+	1. What is the relationship between Child and Toy, and what is the relationship between Child and the array of pointers.
+	Answer - In this workshop Child module manages a constant dynamically allocated array of pointers of class type Toy. This class is responsible for allocating the memory for the array of the pointer itself and also for every element of the array by using new operator. This class is also responsible for the deallocation of all the array elements and then the array itself. From this, I can say that the Child has toys or in other way it describes a has-a relationship between the Child and Toy in which Child class’s object is a composer object, while the Toy class’s object is a component object. This means that Child has complete ownership of Toy, which give the answer of our question that Child and Toy implements composition relationship between each other.
+
+	2. What is the relationship between ConfirmOrder and Toy, and what is the relationship between ConfirmOrder and the array of pointers.
+	Answer - In the workshop, ConfirmOrder class is responsible to manage only the array of pointers which means that it is not responsible for managing the elements or addresses present in that array (just only the array itself). The addresses present inside the array will be managed outside this class unlike the Child class. From this, we can understand that this class uses the Toy pointer array, but do not manage it completely. This design is more suitable for aggregation relationship, so I can say that the relationship between the ConfirmOrder and Toy is aggregation relationship.
+
+	3. Difference between the implementations of a composition and an aggregation in the given classes Child and ConfirmOrder.
+	Answer - The implementation of these classes are different because their relationships with the Toy class varies. As discussed in question one, Child own Toy and it allocates and deallocates memory for every element present in the toy. Moreover, while implementing copy semantics, we need to use new operator for the array creation and then for the creation of every element of the array to assign it a new Toy object. After that we can deep copy the values. Similarly, in the move constructor we have to assign address of source toy pointer and then have to assign address for every address of the element present in the source pointer array to the current object's array. On the other hand, as discussed in question ConfirmOrder and Toy are in aggregation relationship with each other and ConfirmOrder only manages the array. Thus, while implementing copy semantics for this class we can simply allocate memory for the array only and for move semantics, we can simply assign of the array of source to current object's array. However, this class needs helper operators for its functionalities to add toys in the array to order object. We are using += operator for this when adding any toy to the order and -= operator for removing any toy from the order. These are the main differences in how the given two classes manage the dynamic array of pointer of Toy.
+
+	4.  Difference between the implementations of move and copy functions in a composition and an aggregation.
+	Answer - As I discussed in the question 3, the main difference between move and copy function in a composition and aggregation is that component object manages allocation or the assignment of addresses for the and its elements altogether, however the aggregator object only allocates memory or assign address for the array of the pointer. Below part of the code of copy assignment operator shows and highlight the main differences. 
+
+	// ConfirmOrder copy assignment operator
+	ConfirmOrder& ConfirmOrder::operator=(const ConfirmOrder& confirmOrder)
+	{
+		if (this != &confirmOrder)
+		{
+			toyCounter = confirmOrder.toyCounter;
+			delete[] toys;
+			toys = nullptr;
+			if (confirmOrder.toys && toyCounter > 0)
+			{
+				toys = new const Toy * [toyCounter]; // allocates memory for array only
+				for (int i = 0; i < toyCounter; i++)
+				{
+					toys[i] = confirmOrder.toys[i];
+				}
+			}
+		}
+		return *this;
+	}
+
+	// Child class copy assignment operator
+	Child& Child::operator=(const Child& child)
+	{
+		if (this != &child)
+		{
+			name = child.name;
+			age = child.age;
+
+			if(toysCounter){
+				for (size_t i = 0; i < toysCounter; i++)
+					delete toys[i];
+			}
+			toysCounter = child.toysCounter;
+			delete[] toys;
+			
+			toys = nullptr;
+			if (child.toys && toysCounter > 0)
+			{
+				toys = new const Toy * [toysCounter]; // allocates memory for array
+				for (size_t i = 0; i < toysCounter; i++)
+				{
+					toys[i] = new Toy(*(child.toys[i])); // // allocates memory for array elements also
+				}
+			}
+
+		}
+		return *this;
+	}
+
+	// ConfirmOrder move assingment operator
+	ConfirmOrder& ConfirmOrder::operator=(ConfirmOrder&& confirmOrder) noexcept
+	{
+		if (this != &confirmOrder)
+		{
+			toyCounter = confirmOrder.toyCounter;
+			confirmOrder.toyCounter = 0;
+			delete[] toys;
+			toys = confirmOrder.toys; // assign address of the array only
+			confirmOrder.toys = nullptr;
+		}
+		return *this;
+	}
+
+	// Child move assingment operator
+	Child& Child::operator=(Child&& child) noexcept
+	{
+		if (this != &child)
+		{
+			name = child.name;
+			child.name = "";
+			age = child.age;
+			child.age = 0;
+			
+			if (toysCounter)
+			{
+				for (size_t i = 0; i < toysCounter; i++)
+					delete toys[i];
+			}
+
+			delete[] toys;
+
+			toysCounter = child.toysCounter;  // assign address of the array
+			child.toysCounter = 0;
+			toys = child.toys;
+
+			for (size_t i = 0; i < toysCounter; i++)
+			{
+				toys[i] = child.toys[i]; // assign address of the array elements also
+			}
+			child.toys = nullptr;
+		}
+		return *this;
+	}
+
+
+	Now, as I mentioned above about the problem. The problem was related to implementing copy functions for the child class. By mistakenly, I was copying the addresses of every element of the array rather than deep copying the values. Essentially my code for the ConfirmOrder copy functions and Child class copy functions was almost same, which I realized later on. So, after understanding that, I thought that I need to make a way for toy to copy all the toy member's data from one toy to the other. So, to do that part I made a copy constructor in the toy class which shallow copies all the elements of the source toy to the current toy. The code for that looks like the below one:
+
+	Toy::Toy(const Toy& toy)
+	{
+		orderId = toy.orderId;
+		toyName = toy.toyName;
+		nItems = toy.nItems;
+		price = toy.price;
+	}
+
+	In this way, I solved my problem. Overall, this workshop was good in terms of understanding difference between composition and aggregation relationships.
