@@ -1,0 +1,93 @@
+//Name - Ashwin Anand
+//email - aanand24@myseneca.ca
+//student id - 152042206
+//date - 2022/02/05
+//I have done all the coding by myself and only copied the code that my professor provided to complete my workshops and assignments.
+
+
+In this workshop, I was mainly required to write code based on templates and inheritance, that is, I did not need to do coding relating to dynamic memory, rule of three and other related topics. Along with that, this workshop was kind of a different and new to me because this was the first time I was writing couple of files involving templates plus inheritance. I was able to practice my coding skills with templates and it gave me some confident to deal with them. Confidence, because when we started discussing about templates in the lectures, I found there syntax somewhat difficult to understand at first, but now they seem logical and a good way to implement various versions of a classes involving different types with a single template. In this sense, we leave all the logic of defining class for those give types on the compiler. Another thing that I learned was how to declare and initialize static members in templates. Declaring them is same as with concrete classes, however initializing of them needs to be done in a seperate template header. For example in this workhsop, to initialize dummy variable in the Collection template, I wrote code outside its class defintition like this: 
+	template<typename T, unsigned CAPACITY>
+	T Collection<T, CAPACITY>::dummy{};
+
+
+Moreover, I also learned how to specialize templates' variables and function in this workshop for specific types. To specialize them we need to use a template header without any parameter and then initialize this variable following the same convention as with static variables. To specialize initialization for dummy variable for a Pair type I wrote code like this:
+
+	template<> // denotes specialization
+	Pair Collection<Pair, 100>::dummy{ "No Key", "No Value" };
+
+
+I also specialized function (add()) in this workshop for double type in the Set template. It was the same as specialization for dummy. Refer to code below:
+
+	template<>
+	bool Set<double>::add(const double& item)
+	{
+		bool status = false, exists = false;
+		int currentElements = Collection<double, 100>::size();
+
+		if (currentElements < 100)
+		{
+			if (currentElements > 0)
+			{
+				for (int i = 0; !exists && i < currentElements; i++)
+				{
+					if (std::fabs(item - Collection<double, 100>::operator[](i)) <= 0.01)
+					{
+						exists = true;
+					}
+				}
+			}
+
+			if (!exists)
+			{
+				Collection<double, 100>::add(item);
+				status = true;
+			}
+		}
+		return status;
+	}
+
+}
+
+Further, I got to learn how I can use inheritance with templates and how the syntax changes relatively to concrete classes. For example if we derive concrete class A from concrete class B with public scope, then the code looks like this:
+
+class B{
+ // code pending...
+}
+class A : public B{
+   // code pending...
+};
+
+On the other hand, for templated classes, the syntax changes and wherever we are referring to parent class in the derived we have to specify template parameters. For example, in this workshop we made template class Set which is the child class of template Collection. Code can be like the below one:
+
+template<typename T, int Capacity>
+class Collection
+{
+	// refer to Collection.h file for more
+}
+
+template<typename T>
+class Set : public Collection<T, 100>
+{
+	// refer to Set.h file for more
+}
+
+Now, apart from my learning let me discuss the questions that was asked in the reflection.
+
+First was the reason for specializing the add member function
+Answer - Well, there may be different answers to this question. In my opinion, we specialized the add function for particularly double types because floating point types are stored in memory based on approximation and doing their comparison directly with the == operator in the implementation may not give us the result we have expected. On the other side, for int and key values(strings) of Pair class, their comparison can be done with the == operator as they are stored accurately in memory.
+
+Second, the reason for defining the class variable outside the class definition.
+Answer - This is a kind of a general question involving all classes with static variables not only templates. Static variables are class variables which are shared among instances of the class rather than the instance variables whose values varies with the object. Static variables are shared with objects means that their value remain same for every instance of the class. We define these variables outside of their class definition because if we define them inside the class then whenever we create instance of the class, their value will be affected for that instance which is totally opposite of their internal concept and would produce compiler error. This is why we define them outside of the class.
+
+Third,  why we do not split a module into *.h and *.cpp like you did in the previous workshops?
+Answer - Let's discuss this question with a scenario. Let's suppose if I declared a template in a .h file(template.h) and implemented in .cpp file(template.cpp) and used that template in an another independent .cpp(independent.cpp) file. Now, before the time we were not using the template, code for that will not be generated by compiler. However, as soon as we instantiate that template in the independent.cpp file with a concrete type as arguments, compiler will look for the structure and implementation to generate code by initializing the template parameters in template.h file with the concrete type arguments provided in the independent.cpp file. Now, since we implemented the template in a seperate .cpp file (template.cpp), compiler would not have sufficient information of how it can create a concrete class or function based only on the included header file(template.h) in independent.cpp file. Template.h is only the blueprint of what are the class members, where as template.cpp contains how that class would look like and behave for a particular type. Therefore, compiler may get confuse and not be able make the class for the specified type in the independent.cpp file. Moreover, making a seperate .cpp file for a template is less meaningful because compiler cannot compile templates. For example, if I defined a template based on the typename T in a .cpp file, then compiler would say what the type T is during comiplation and will throw an error. On the otherhand, if I declare and define the template in the header file then this problem would not be there and compiler can happily create the code for our class or function because both the structure and behaviour resides together. Just to note that, this code generation is done during the compilation before the linking step in order to include that in the main object file of the program.
+
+Fourth, why it was necessary to add each one of the members you have decided to add in the Pair module?
+Answer - The member I added in the Pair module involves ostream operator, ==operator and a default constructor. Below are the reasons:
+	a. I added std::ostream& operator<<(std::ostream& ostr, const Pair& pair) in the implementation because in the output, display for the objects of Pair type was different as compared to integers or doubles and in order to achieve the same output, I had to define the insertion operator for Pair type.
+	b. I added bool operator==(const Pair& pair1, const Pair& pair2) for comparison purposes. In the implementation of Set template, I was required to compare types based on their keys and in order to do so, I defined this operator in the Pair class.
+	c. Third thing which was necessary for a Pair object to be instantiated was the default constructor. Pair had already a two argument constructor, and as we know compiler only creates a default constructor if there is not any constructor in the class. Therefore, to instantiate the Pair object, it was needed to create the default constructor.
+
+Here, with the answer of the last question, my reflection ends.
+
+
