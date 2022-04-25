@@ -1,0 +1,93 @@
+//Name - Ashwin Anand
+//email - aanand24@myseneca.ca
+//student id - 152042206
+//date - 2022/03/27
+//I have done all the coding by myself and only copied the code that my professor provided to complete my workshops and assignments.
+
+
+										Reflection
+This workshop was primarily about the notion of using smart pointers as compared to raw pointers in C++. Mostly, the code was already implemented and I just had to implement some functions to make the code work. The functions which I defined mainly show the comparison of working with raw pointers and smart pointers. Smart pointers have automatic deallocation, while the raw pointers require manual deallocation. Along with this, I also got opportunity to how to implement Luhn Algorithm by myself to validate a number, essentially SIN in this workshop and also writing a display with iomanip library. Now, Let me jump to the questions asked in the reflection
+
+1. the advantage that smart pointer syntax provides. Use example from your code to support your explanation.
+Answer - The main advantage that smart pointer have over raw pointers is related to their memory management. A smart pointer is allocated on stack and thus when the smart pointer goes out of scope, resource allocated with them also goes into destruction automatically. On the other side, resource allocated with raw pointer is allocated on heap. Hence, there is no automatic destruction of the resource and it becomes the duty of the programmer to deallocate the memory by himself. The need for smart pointer came when an exception arises in the code and the code after that does not executed. This can result in memory leak mainly if we allocate a resource before an exception and deallocate it after that exception. An example can be taken from this workshop's writeRaw function which I implemented - 
+
+GeneratingList<EmployeeWage> writeRaw(const GeneratingList<Employee>& emp, const GeneratingList<Salary>& sal) {
+		GeneratingList<EmployeeWage> activeEmp;
+		
+		bool notFound{};
+		// TODO: Add your code here to build a list of employees
+		//         using raw pointers
+		for (size_t i = 0; i < emp.size(); i++)
+		{
+			notFound = true;
+			
+				for (size_t j = 0; j < sal.size() && notFound; j++)
+				{
+				
+					if (emp[i].id == sal[j].id)
+					{
+						notFound = false;
+						EmployeeWage* empWage = new EmployeeWage(emp[i].name, sal[j].salary);
+
+						try
+						{
+							empWage->rangeValidator();
+						}
+						catch (const std::string&)
+						{
+							delete empWage;
+							throw std::string("*** Employees salaray range is not valid");
+						};
+						if (activeEmp.SINValidator(emp[i].id))
+							activeEmp += empWage;
+						else
+							throw std::string("SIN not valid");
+						delete empWage; 
+					}
+				}
+		}
+		return activeEmp;
+	}
+
+	If we see here a resource named empWage gets allocated before there is a chance of exception in try block. If an exception arise in the try block then the code in the catch block gets executed which would surely do the deallocation. However suppose if I have not done any deallocation in catch block or even if i do not write the try catch block and simply call rangeValidator on empWage pointer, then there would be a chance of memory leak if an exception arise because the code after the exception would not be executed and then the control would go to the catch block which is written in main method of w8_p2.cpp file. This problem can be resolved by doing manual deallocation twice as I did above and then throwing again an exception, but this thing is not effecient. This is where the smart pointer comes into play. Due to their automatic deallocation, it is very easy to maintain the resource. For example refer to the code below:
+GeneratingList<EmployeeWage> writeSmart(const GeneratingList<Employee>& emp, const GeneratingList<Salary>& sal)
+	{
+		GeneratingList<EmployeeWage> activeEmp;
+		bool notFound{};
+		// TODO: Add your code here to build a list of employees
+		//         using smart pointers
+		for (size_t i = 0; i < emp.size(); i++)
+		{
+			notFound = true;
+
+			for (size_t j = 0; j < sal.size() && notFound; j++)
+			{
+
+				if(emp[i].id == sal[j].id)
+				{
+					notFound = false;
+					std::unique_ptr<EmployeeWage> empWage(new EmployeeWage(emp[i].name, sal[j].salary));
+
+					try
+					{
+						empWage->rangeValidator();
+					}
+					catch (const std::string&)
+					{
+						throw std::string("*** Employees salaray range is not valid");
+					};
+					if (activeEmp.SINValidator(emp[i].id))
+						activeEmp += std::move(empWage);
+					else
+						throw std::string("SIN not valid");
+				}
+			}
+		}
+		return activeEmp;
+	}
+
+	In the above code, I have not done any manual deallocation and the object created would go out of scope at time time of block completion either ungracefully or gracefully.
+2. the difference between raw and smart pointer syntax in your solution.
+Syntax difference between the raw and smart pointer:
+
+Smart pointers are templated classes which means I have to specify the type while allocating a resource associated with a smart pointer, however raw pointers can be initialized directly and there is no template. For example, to allocate a smart unique pointer, we follow the below syntax std::unique_ptr<EmployeeWage> empWage(new EmployeeWage(emp[i].name, sal[j].salary)) and however while allocating a raw pointer we simply write the type directly without any template. For example : EmployeeWage* empWage = new EmployeeWage(emp[i].name, sal[j].salary); Apart from this, we need to include memory library for the smart pointers, where as for raw pointers no specific library is required.
