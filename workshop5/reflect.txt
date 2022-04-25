@@ -1,0 +1,99 @@
+//Name - Ashwin Anand
+//email - aanand24@myseneca.ca
+//student id - 152042206
+//date - 2022/02/27
+//I have done all the coding by myself and only copied the code that my professor provided to complete my workshops and assignments.
+
+
+											Reflection
+In this workshop, I have learned some new things for example, coding a templated class named CentralUnit that manages a dynamically allocated array of certain Units of type T which are responsible to perform various jobs. Along with this, I learned how to declare function pointers, assigning them addresses of other functions, how to declare an object of type std::function wrapper class, how to make a class as a Functor using operator overload of "()" operator, how to make a lambda function or expression and some other things related to functions. Moreover, I learned how to throw and handle exceptions by using throw keyword and try and catch block respecitively. Now, after mentioning the things I learned while completing this workshop, I will discuss about the question that are asked in the reflection.
+
+Question 1 says Identify which components of your solution are the observers, subjects, and the events per the observer pattern.
+Answer - In my solution, there are two observers which are defined in the Process.h file named on_error and on_complete. "on_error" is a method that takes a parameter of type std::function<void(Processor*)> wrapper class and returns nothing. This function is registerd with every object or unit creation and checks the state of the unit when that unit performs certain task and reports an error if the state of the unit changes according to what that is not expected. "on_complete" is also a method that takes first parameter as a pointer to function and second parameter as a pointer to Processor. This method is also registered with every object or unit creation and observes the state of the unit when that unit performs certain task. When the task gets completed, state of the unit changes and then this function gets executed to execute certain event on that unit. Moving further, objects or units on to which these observers are registered, are called the Subjects that are responsible to perform certain jobs and are controlled by the host. For example, in this workshop processors are the units that are responsible for completing various jobs and are maintained by the CentralUnit. Now, when the state of the object changes certain events gets executed which in our case are the complete_job and the lamda expression present in the CentralUnit.h file. These functions or events can be called on any unit in the workshop because these are stored in the data members named afterJobFinishes and runWhenError. afterJobFinishes stores the address of the event or the member function named complete_job defined in CentralUnit.h file and runWhenError stores the address of the lambda expression through a std::function object which takes parameter of a pointer to processor and returns nothing. When the state of the unit changes event stored in the respective variable gets called.
+
+Question 2 - Why we used std::function and discuss Pros and Cons of std::function (mention at least one of each)
+
+We used std::function object in this workshop to store the address of the lambda expression
+Advantage - According to what I have learned in the workshop, I think std::function comes to rescue when we want to store callable entities: functions, pointers to functions, member functions, lambda expression to name a few. For example, in this workshop we have used them store lambda expressions. Lambda expressions are closures or nested functions which does not have a name or we can say anonymous functions. std::function is a good way to give those nested functions a name and thereby enabling their use for more than one time in the host function. For example in our workshop, as mentioned above, we have two data members afterjobfinishes and runWhenError. In these data members. runWhenError is a std::function object which stores a lambda expression. Whenever we want to call that lambda expression which is defined in a host function, we can call that using the runWhenError std::function object and this will perform the same logic.
+
+Disadvantage - Being less familier with the std::function, I did now know the disadvantage of the std::function, however I found something on the internet which I would like to share. In this page (https://stackoverflow.com/questions/5057382/what-is-the-performance-overhead-of-stdfunction), it has been said that the std::function causes performance issues.
+
+Explaination - As we know now, that std::function is a function wrapper class. When we initialize it by some function address, it only holds the pointer to that address. Now, if the lifetime of that pointer is smaller than the lifetime of the std::function object, this can result in undefined behaviour or error. To overcome this problem, programmers initialize the std::function object by allocating it dynamically using a new operator. This will result in the copy rather than by address mechanism. 
+
+Question 3 - How can C++ templates be used instead of an std::function object to store a function?
+Answer - C++ templates can also be used to store function similarly to std::function. This thing which I will explain is learned from notes. In notes, there is a very good example of how to use templates to store a function. I will explain based on those logic here. For example if I have a template function named doStuffWithInt like below which takes a parameter of templated type.
+
+template<typename function>
+void doStuffWithInt(T funPointer){
+	int i = 4;
+	funPointer(i);
+}
+
+//main function
+int main(){
+	std::cout << doStuffWithInt([](int i){ return i; }) << std::endl;
+}
+
+Above in the main function, it is noticeable that we are passing a lambda expression to a templated type and then calling that type in the same way as we call the object of std::function type. So, this is how we can use template type as a replacement for std::function in some way.
+
+Question  4 - Your code reports and handles different types of exceptions. How would you modify your code to only report exceptions of the same data type and handle them appropriately? How would you differentiate between the different exceptions in this case?
+Answer -I tried to think of a way to only report exceptions of the same data type but I was not able to find it on the internet. I tried this code to test it 
+
+#include <iostream>
+using namespace std;
+
+int main(int argc, char* argv[])
+{
+    int x;
+    cin >> x;
+
+    try
+    {
+        if (x < 0)
+        {
+            throw x;
+        }
+        if (x > 0)
+        {
+            throw x;
+        }
+    }
+    catch (int x)
+    {
+        cout << "Exception with x Caught \n" << x;
+    }
+    catch (int y)
+    {
+        cout << "Exception with y Caught \n" << y;
+    }
+}
+
+However, this code could not compile because it says that int is caught by an int already. Handling exceptions of type int in one catch block and handling exceptions of other type in other catch block is what I am able to do. For example below :
+
+int main(int argc, char* argv[])
+{
+    int x;
+    cin >> x;
+
+    try
+    {
+        if (x < 0)
+        {
+            throw x;
+        }
+        else
+        {
+            throw "";
+        }
+    }
+    catch (int x)
+    {
+        cout << "Exception with x Caught \n" << x;
+    }
+    catch (string y)
+    {
+        cout << "Exception with y Caught \n" << y;
+    }
+}
+
+In the above code if x is not less than 0 then exception of type string will be thrown which will be caught by the 2nd catch block. But I did not understand about how to handle exceptions of the same data type. It would be great professor, if you would explain about this question and also about the advantages and disadvantages of std::function in the class.
