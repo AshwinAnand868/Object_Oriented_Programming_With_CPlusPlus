@@ -1,0 +1,122 @@
+//Name - Ashwin Anand
+//email - aanand24@myseneca.ca
+//student id - 152042206
+//date - 2022/03/17
+//I have done all the coding by myself and only copied the code that my professor provided to complete my workshops and assignments.
+
+
+											Reflection
+This workshop was basically all about using algorithm and numeric libraries along with sequential containers like std::vector and std::list present in C++. To implement this workshop, I only thought about which algorithm to use for various member functions and all the work was done by those algorithms. I just only need to call them in my program. The only problem I faced at first while working on the algorithms was related to what arguments to be specified in the function call while giving predicate in the argument. This problem got resovled in the lab session and then I was able to work on the workshop. Now, let's jump on to the questions asked in the reflection. 
+
+a. list all the STL functions that you have used in this workshop; explain your reasoning for choosing each one, and not another.
+Answer - I used various STL funcitions in this workshop and here I will address what I chose and what was the reason of choosing that for a purpose over another.
+
+1. First, I used for_each query present in the algorithm library in the display function of my program. The reason for choosing that function is that I want to display every covid object present in the covidCollection variable. For this to do I want to loop through all the elements like a simple loop in C++. for_each function was the one which seemed to match the purpose exactly so that's why I chose that function.
+
+2. After this for the sorting purpose, I used sort function present in the algorithm library. Actually, in the workshop it was asked to sort the covid collection by country, variant, cases or deaths and as we can figure out easily that for sorting task we required the help of sorting functions present in the algorithm library. Therefore to achieve the purpose, I used sort function which takes the beginning and one past the end of the covid collection and a predicate as its third argument.
+
+3. In the cleanList function, I have to remove the value of the variant with an empty string if the variant value is "[None]" of a respective covid object. After reading this I thought that I need a modifier for this purpose because I need to modify the objects state. I found the transform method as a fit for this purpose because I can modify the state of object using this method and store the result into other collection and then copy that collection into the current object's collection.
+
+4. Then in the inCollection method in which I have to implement the logic to check whether the variant given in the argument is present in the collection or not. After reading this first time the query that comes in my mind immediately was to use any_of(..). This query returns true if any of a given collection object contains the element we want to find and so this was the perfect match for the purpose in inCollection member function.
+
+5. Laslty for getListForVariant and getListForCountry functions. In these member functions, I need to create a list container and store only the data in that list which match the variant or country provided in the parameter for both functions. For the creation of list, first I need to know the size for the list and then i need to store the data in the list from covidCollection variable. To get to know the size, I used the count_if function. This function returns the count if the predicate statisfies the condition. In both member functions, I can get the count of how many times a particular country or a variant exist in the covidCollection data member. After getting the count, I can allocate the size of the list to that count only. Then, I could copy the data from the covid collection data member to the list variable which I created. For data copying, I used the copy_if function with a bool return type to check only for country or variant specified. By this, it would copy the data as required in the list.
+
+b. Advantages of using STL algorithms vs. implementing the functionality by yourself using loops.
+Answer - There are many STL algorithms and they are really useful while implementing  various logics in the program. Below, I will discuss the advantages of using STL algorithms what I felt or found in this workshop.
+
+1. Save Time: First of all, as the logics are already implemented in the library, there is no need to implement them again and this would save a lot of time for the programmer if he is dealing with various logics related to those algorithms in his project.
+
+2. Less lines of code: Lines of code of involving manual loops can be replaced by one line of a function call and this can reduce a lot of typing and code lines for the programmer.
+
+3. These algorithms are implemented and tested by professionals, thereby no chance of getting mistakes if called the function with the expected number of arguments.
+
+There could be many other advantages but these are the ones I felt about using them in this workshop.
+
+c. To generate a custom error message when the argument provided in the sort function is wrong, I could use assert or  throw expression. For this thing to handle, I was required to add a few lines of code in my sort function. 
+
+This was my code before the handling of the invalid argument
+
+void CovidCollection::sort(std::string orderBy)
+	{
+		if (orderBy == "country")
+		std::sort(covidCollection.begin(), covidCollection.end(), [](const Covid covid1, const Covid covid2)
+		{
+			return covid1.country < covid2.country;
+		});
+		else if (orderBy == "variant")
+		std::sort(covidCollection.begin(), covidCollection.end(), [](const Covid covid1, const Covid covid2)
+		{
+			return covid1.variant < covid2.variant;
+		});
+		else if (orderBy == "cases")
+		std::sort(covidCollection.begin(), covidCollection.end(), [](const Covid covid1, const Covid covid2)
+		{
+			return covid1.nCases < covid2.nCases;
+		});
+		else
+		std::sort(covidCollection.begin(), covidCollection.end(), [](const Covid covid1, const Covid covid2)
+		{
+			return covid1.m_deaths < covid2.m_deaths;
+		});
+		
+	}
+
+To generate errors for invalid arguments, I could use one of the below versions for the sort function.
+	void CovidCollection::sort(std::string orderBy)
+	{
+		if (orderBy == "country")
+			std::sort(covidCollection.begin(), covidCollection.end(), [](const Covid covid1, const Covid covid2)
+				{
+					return covid1.country < covid2.country;
+				});
+		else if (orderBy == "variant")
+			std::sort(covidCollection.begin(), covidCollection.end(), [](const Covid covid1, const Covid covid2)
+				{
+					return covid1.variant < covid2.variant;
+				});
+		else if (orderBy == "cases")
+			std::sort(covidCollection.begin(), covidCollection.end(), [](const Covid covid1, const Covid covid2)
+				{
+					return covid1.nCases < covid2.nCases;
+				});
+		else if (orderBy == "deaths")
+			std::sort(covidCollection.begin(), covidCollection.end(), [](const Covid covid1, const Covid covid2)
+				{
+					return covid1.m_deaths < covid2.m_deaths;
+				});
+		else
+			throw "Invalid Args Exception";			
+	}
+
+OR
+
+	void CovidCollection::sort(std::string orderBy)
+	{
+		if (orderBy == "country")
+			std::sort(covidCollection.begin(), covidCollection.end(), [](const Covid covid1, const Covid covid2)
+				{
+					return covid1.country < covid2.country;
+				});
+		else if (orderBy == "variant")
+			std::sort(covidCollection.begin(), covidCollection.end(), [](const Covid covid1, const Covid covid2)
+				{
+					return covid1.variant < covid2.variant;
+				});
+		else if (orderBy == "cases")
+			std::sort(covidCollection.begin(), covidCollection.end(), [](const Covid covid1, const Covid covid2)
+				{
+					return covid1.nCases < covid2.nCases;
+				});
+		else if (orderBy == "deaths")
+			std::sort(covidCollection.begin(), covidCollection.end(), [](const Covid covid1, const Covid covid2)
+				{
+					return covid1.m_deaths < covid2.m_deaths;
+				});
+		else
+			assert(orderBy=="country" || orderBy =="variant" || orderBy == "cases"|| orderBy == "deaths");	
+	}
+
+
+This is the end for the reflection of this workshop. Overall, this workshop had a kind of already implemented functionality with just a requirement of designing the code.
+
+
